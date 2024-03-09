@@ -43,9 +43,15 @@ class StockPriceViewSet(viewsets.ModelViewSet):
     serializer_class = StockPriceSerializer
 
 
+
+''' Usage: "http://127.0.0.1:8000/api/stockprice/AAPL/?time_step=100&future_date=30" '''
 # Create a class based view that takes a stock_id and predicts the stock price
-class StockPriceView(APIView):
-    def get(self, request, stock_id, time_step=100):
+class StockPriceView(APIView):  
+    def get(self, request, stock_id):   
+        # Get time_step=100, future_date=30 from get request
+        time_step = int(request.GET.get('time_step', 100))
+        future_date = int(request.GET.get('future_date', 30))
+
 
         # Data Collection
         # Get the stock data from Yahoo Finance
@@ -122,7 +128,7 @@ class StockPriceView(APIView):
         test_predict = scaler.inverse_transform(test_predict)        
         
         # Plotting
-        look_back = 100
+        look_back = time_step
         trainPredictPlot = np.empty_like(df)
         trainPredictPlot[:,:] = np.nan
         trainPredictPlot[look_back:len(train_predict)+look_back, :] = train_predict
@@ -138,7 +144,7 @@ class StockPriceView(APIView):
         # print(trainPredictPlot)
         # print(testPredictPlot)
 
-        x_input = test_data[len(test_data)-100:].reshape(1,-1)
+        x_input = test_data[len(test_data)-time_step:].reshape(1,-1)
 
         temp_input = list(x_input)
         temp_input = temp_input[0].tolist()
@@ -146,11 +152,11 @@ class StockPriceView(APIView):
 
         # Prediction
         lst_output = []
-        n_steps = 100
+        n_steps = time_step
         i = 0
 
-        while(i<30):
-            if(len(temp_input)>100):
+        while(i<future_date):
+            if(len(temp_input)>n_steps):
                 x_input = np.array(temp_input[1:])
                 x_input = x_input.reshape(1, -1)
                 x_input = x_input.reshape((1, n_steps, 1))
@@ -166,13 +172,13 @@ class StockPriceView(APIView):
             i = i+1 
 
 
-        past_dates = df_d[['Close', 'Date']].tail(100)
+        past_dates = df_d[['Close', 'Date']].tail(time_step)
         print("Values used for pred: \n", past_dates)
 
         # Generate dates for the next 30 days, skipping Saturdays and Sundays
         future_dates = []
         day_count = 0
-        while len(future_dates) < 30:
+        while len(future_dates) < future_date:
             temp_date = datetime.now() + timedelta(days=day_count)
             if temp_date.weekday() < 5:  # 0-4 denotes Monday to Friday
                 future_dates.append(temp_date)
