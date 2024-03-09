@@ -1,0 +1,8 @@
+setuptools
+pandas_datareader
+pandas
+matplotlib
+sklearn
+tensorflow
+
+yfinance
