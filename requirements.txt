@@ -4,5 +4,7 @@ pandas
 matplotlib
 sklearn
 tensorflow
-
+django-cors-headers
+djangorestframework
+django
 yfinance
