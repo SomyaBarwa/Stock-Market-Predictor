@@ -5,6 +5,8 @@ from django.db import models
 class Stock(models.Model):
     stock_id = models.CharField(max_length=10, primary_key=True)
     stock_name = models.CharField(max_length=100, blank=True, null=True)
+    # field that captures the last date of stock data that was fetched
+    last_stock_data_date = models.DateField(blank=True, null=True)
 
     def __str__(self):
         return self.stock_id

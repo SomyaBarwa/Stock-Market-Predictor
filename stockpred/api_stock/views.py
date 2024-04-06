@@ -53,18 +53,34 @@ class StockPriceView(APIView):
         future_date = int(request.GET.get('future_date', 30))
 
 
+        # Run the LSTM model only if the last_stock_data_date is older than 1 day
+        stock = Stock.objects.filter(stock_id=stock_id).first()
+        if stock:
+            last_stock_data_date = stock.last_stock_data_date
+            if last_stock_data_date:
+                if (datetime.now().date() - last_stock_data_date).days < 1:
+                    stock_prices = StockPrice.objects.filter(stock_id=stock)
+                    serializer = StockPriceSerializer(stock_prices, many=True)
+                    return Response(serializer.data)
+
+
         # Data Collection
         # Get the stock data from Yahoo Finance
         try:
             five_years_ago = datetime.now() - timedelta(days=5*365)
             five_years_ago_str = five_years_ago.strftime('%Y-%m-%d')
 
-            yesterday = datetime.now() - timedelta(1)
+            # today = datetime.now()
+            today = datetime(2023, 7, 1)
+            yesterday = today - timedelta(1)
             yesterday_str = yesterday.strftime('%Y-%m-%d')
 
             df = pdr.data.get_data_yahoo(stock_id, start=five_years_ago_str, end=yesterday_str)
+
             Stock.objects.filter(stock_id=stock_id).delete()
             stock = Stock.objects.create(stock_id=stock_id)    
+            stock.last_stock_data_date = today.date()
+            stock.save()
 
         except:
             return Response("Stock not found", status=404)
@@ -118,6 +134,7 @@ class StockPriceView(APIView):
         model.add(Dense(1))
         model.compile(loss='mean_squared_error', optimizer='adam')
 
+
         model.fit(X_train, y_train, validation_data=(X_test, y_test), epochs=100, batch_size=64, verbose=1)
 
 
@@ -161,6 +178,9 @@ class StockPriceView(APIView):
                 x_input = x_input.reshape(1, -1)
                 x_input = x_input.reshape((1, n_steps, 1))
                 yhat = model.predict(x_input, verbose=0)
+                # Randomly add or decrease the value yhat from range of values between +yhat/50 to -yhat/50 
+                yhat = yhat + np.random.uniform(-yhat/50, yhat/50)
+
                 temp_input.extend(yhat[0].tolist())
                 temp_input = temp_input[1:]
             else:
@@ -179,7 +199,7 @@ class StockPriceView(APIView):
         future_dates = []
         day_count = 0
         while len(future_dates) < future_date:
-            temp_date = datetime.now() + timedelta(days=day_count)
+            temp_date = today + timedelta(days=day_count)
             if temp_date.weekday() < 5:  # 0-4 denotes Monday to Friday
                 future_dates.append(temp_date)
             day_count += 1
