@@ -188,8 +188,8 @@ class StockPriceView(APIView):
                 x_input = x_input.reshape(1, -1)
                 x_input = x_input.reshape((1, n_steps, 1))
                 yhat = model.predict(x_input, verbose=0)
-                # Randomly add or decrease the value yhat from range of values between +yhat/50 to -yhat/50 
-                yhat = yhat + np.random.uniform(-yhat/50, yhat/50)
+                # Randomly add or decrease the value yhat from range of values between +yhat/30 to -yhat/30 tp add taste of stochasticity
+                yhat = yhat + np.random.uniform(-yhat/30, yhat/30)
 
                 temp_input.extend(yhat[0].tolist())
                 temp_input = temp_input[1:]
