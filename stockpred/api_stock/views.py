@@ -70,8 +70,8 @@ class StockPriceView(APIView):
             five_years_ago = datetime.now() - timedelta(days=5*365)
             five_years_ago_str = five_years_ago.strftime('%Y-%m-%d')
 
-            # today = datetime.now()
-            today = datetime(2023, 7, 1)
+            today = datetime.now()
+            # today = datetime(2023, 7, 1)
             yesterday = today - timedelta(1)
             yesterday_str = yesterday.strftime('%Y-%m-%d')
 
