@@ -28,6 +28,10 @@ from keras.models import Sequential
 from keras.layers import Dense, LSTM, Dropout
 from datetime import datetime, timedelta
 
+# ------------------------------------------------------- Senti analysis model imports -------------------------------------------------------
+
+from transformers import BertTokenizer, TFBertForSequenceClassification
+from transformers import pipeline
 
 
 # ------------------------------------------------------- Views -------------------------------------------------------
@@ -67,6 +71,8 @@ class StockPriceView(APIView):
         # Data Collection
         # Get the stock data from Yahoo Finance
         try:
+            tick = yf.Ticker(stock_id.upper())
+
             five_years_ago = datetime.now() - timedelta(days=5*365)
             five_years_ago_str = five_years_ago.strftime('%Y-%m-%d')
 
@@ -75,7 +81,11 @@ class StockPriceView(APIView):
             yesterday = today - timedelta(1)
             yesterday_str = yesterday.strftime('%Y-%m-%d')
 
-            df = pdr.data.get_data_yahoo(stock_id, start=five_years_ago_str, end=yesterday_str)
+            try: 
+                df = pdr.data.get_data_yahoo(stock_id, start=five_years_ago_str, end=yesterday_str)
+            except:
+                df = tick.history(period="max")
+
 
             Stock.objects.filter(stock_id=stock_id).delete()
             stock = Stock.objects.create(stock_id=stock_id)    
@@ -225,10 +235,49 @@ class StockPriceView(APIView):
         serializer = StockPriceSerializer(stock_prices, many=True)
         return Response(serializer.data)
     
+
+''' Usage: "http://api/stockanalysis/AAPL/" '''
+# Create a class based view that takes a stock_id and returns the news related to the stock
+class StockAnalysisView(APIView):
+    def get(self, request, stock_id):
+        # try:
+        tick = yf.Ticker(stock_id.upper())
+        news = tick.news
+        
+        # For all news, join the title of the news to form a list of titles
+        titles = []
+        for new in news:
+            titles.append(new['title'])    
+
+        print(titles)         
+        
+        model = TFBertForSequenceClassification.from_pretrained("ahmedrachid/FinancialBERT-Sentiment-Analysis",num_labels=3, from_pt=True)
+        tokenizer = BertTokenizer.from_pretrained("ahmedrachid/FinancialBERT-Sentiment-Analysis")
+
+        nlp = pipeline("sentiment-analysis", model=model, tokenizer=tokenizer)
+
+        sentences = titles 
+        results = nlp(sentences)
+        print(results)
+            
+
+        # except:
+        #     return Response("Stock not found", status=404)
+        # Create a list to store the results
+        sentiment_results = []
+
+        # Loop through the results
+        for i in range(len(results)):
+            # Append the result to the sentiment_results list
+            sentiment_results.append({
+            'sentences': sentences[i],
+            'label': results[i]['label'],
+            'score': results[i]['score']
+            })
+
+        # Return the sentiment_results list as a response
+        return Response(sentiment_results)
     
-
-
-
 
 
 
