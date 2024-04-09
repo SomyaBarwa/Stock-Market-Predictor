@@ -68,12 +68,14 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-CORS_ORIGIN_WHITELIST = [
-    'http://0.0.0.0', 
-    'http://localhost', 
-    'http://127.0.0.1',
-    'http://localhost:3000',
-]
+CORS_ALLOW_ALL_ORIGINS = True
+
+# CORS_ORIGIN_WHITELIST = [
+#     'http://0.0.0.0', 
+#     'http://localhost', 
+#     'http://127.0.0.1',
+#     'http://localhost:3000',
+# ]
 
 
 ROOT_URLCONF = 'stockpred.urls'
