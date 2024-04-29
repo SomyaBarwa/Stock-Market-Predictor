@@ -6,7 +6,7 @@ FROM python:3.12
 # to the terminal with out buffering it first
 ENV PYTHONUNBUFFERED 1
 
-# Set the working directory to /credit_approval_system
+# Set the working directory to django
 WORKDIR /django
 
 COPY requirements.txt requirements.txt
