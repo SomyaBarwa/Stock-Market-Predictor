@@ -30,8 +30,8 @@ from datetime import datetime, timedelta
 
 # ------------------------------------------------------- Senti analysis model imports -------------------------------------------------------
 
-# from transformers import BertTokenizer, TFBertForSequenceClassification
-# from transformers import pipeline
+from transformers import BertTokenizer, TFBertForSequenceClassification
+from transformers import pipeline
 
 
 # ------------------------------------------------------- Views -------------------------------------------------------
