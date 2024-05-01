@@ -30,8 +30,8 @@ from datetime import datetime, timedelta
 
 # ------------------------------------------------------- Senti analysis model imports -------------------------------------------------------
 
-# from transformers import BertTokenizer, TFBertForSequenceClassification
-# from transformers import pipeline
+from transformers import BertTokenizer, TFBertForSequenceClassification
+from transformers import pipeline
 
 
 # ------------------------------------------------------- Views -------------------------------------------------------
@@ -238,45 +238,45 @@ class StockPriceView(APIView):
 
 ''' Usage: "http://api/stockanalysis/AAPL/" '''
 # Create a class based view that takes a stock_id and returns the news related to the stock
-# class StockAnalysisView(APIView):
-#     def get(self, request, stock_id):
-#         # try:
-#         tick = yf.Ticker(stock_id.upper())
-#         news = tick.news
+class StockAnalysisView(APIView):
+    def get(self, request, stock_id):
+        # try:
+        tick = yf.Ticker(stock_id.upper())
+        news = tick.news
         
-#         # For all news, join the title of the news to form a list of titles
-#         titles = []
-#         for new in news:
-#             titles.append(new['title'])    
+        # For all news, join the title of the news to form a list of titles
+        titles = []
+        for new in news:
+            titles.append(new['title'])    
 
-#         print(titles)         
+        print(titles)         
         
-#         model = TFBertForSequenceClassification.from_pretrained("ahmedrachid/FinancialBERT-Sentiment-Analysis",num_labels=3, from_pt=True)
-#         tokenizer = BertTokenizer.from_pretrained("ahmedrachid/FinancialBERT-Sentiment-Analysis")
+        model = TFBertForSequenceClassification.from_pretrained("ahmedrachid/FinancialBERT-Sentiment-Analysis",num_labels=3, from_pt=True)
+        tokenizer = BertTokenizer.from_pretrained("ahmedrachid/FinancialBERT-Sentiment-Analysis")
 
-#         nlp = pipeline("sentiment-analysis", model=model, tokenizer=tokenizer)
+        nlp = pipeline("sentiment-analysis", model=model, tokenizer=tokenizer)
 
-#         sentences = titles 
-#         results = nlp(sentences)
-#         print(results)
+        sentences = titles 
+        results = nlp(sentences)
+        print(results)
             
 
-#         # except:
-#         #     return Response("Stock not found", status=404)
-#         # Create a list to store the results
-#         sentiment_results = []
+        # except:
+        #     return Response("Stock not found", status=404)
+        # Create a list to store the results
+        sentiment_results = []
 
-#         # Loop through the results
-#         for i in range(len(results)):
-#             # Append the result to the sentiment_results list
-#             sentiment_results.append({
-#             'sentences': sentences[i],
-#             'label': results[i]['label'],
-#             'score': results[i]['score']
-#             })
+        # Loop through the results
+        for i in range(len(results)):
+            # Append the result to the sentiment_results list
+            sentiment_results.append({
+            'sentences': sentences[i],
+            'label': results[i]['label'],
+            'score': results[i]['score']
+            })
 
-#         # Return the sentiment_results list as a response
-#         return Response(sentiment_results)
+        # Return the sentiment_results list as a response
+        return Response(sentiment_results)
     
 
 

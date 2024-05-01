@@ -8,6 +8,6 @@ router.register(r'api/stockprice', views.StockPriceViewSet, 'stockprice')
 
 urlpatterns = [
     path('api/stockprice/<str:stock_id>/', views.StockPriceView.as_view(), name='stockprice'),
-    # path('api/stockanalysis/<str:stock_id>/', views.StockAnalysisView.as_view(), name='stockanalysis'),
+    path('api/stockanalysis/<str:stock_id>/', views.StockAnalysisView.as_view(), name='stockanalysis'),
 ] + router.urls
 
