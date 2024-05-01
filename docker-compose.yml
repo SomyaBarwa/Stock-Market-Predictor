@@ -8,12 +8,14 @@ services:
       gunicorn stockpred.wsgi:application --bind 0.0.0.0:8000 --timeout 3000"
     ports:
       - "8000:8000"
+    restart: always
 
   frontend:
     build:
       context: ./stock-predictor-frontend
     volumes:
       - react_build:/react/build
+    restart: always
     # command: npm start
     # ports:
     #   - "3000:3000"
@@ -30,6 +32,7 @@ services:
     depends_on:
       - backend
       - frontend
+    restart: always
   
 volumes:
   react_build:

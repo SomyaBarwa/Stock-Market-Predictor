@@ -145,7 +145,7 @@ class StockPriceView(APIView):
         model.compile(loss='mean_squared_error', optimizer='adam')
 
 
-        model.fit(X_train, y_train, validation_data=(X_test, y_test), epochs=100, batch_size=64, verbose=1)
+        model.fit(X_train, y_train, validation_data=(X_test, y_test), epochs=30, batch_size=128, verbose=1)
 
 
         train_predict = model.predict(X_train)
